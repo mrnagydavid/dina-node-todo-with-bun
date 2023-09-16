@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { describe, expect, test, beforeAll, mock } from 'bun:test'
+import { describe, expect, test, mock } from 'bun:test'
 import { getHelloWorld } from '../../src/controllers/hello-world-controller'
 
 describe('getHelloWorld', () => {

@@ -1,6 +1,6 @@
 import { Todo } from '@prisma/client'
 import { prisma } from '../../src/gateways/prisma-client'
-export async function createTodo(params: Partial<Todo>) {
+export async function createTodo(params: Partial<Todo> = {}) {
   const result = await prisma().todo.create({
     data: {
       text: params?.text ?? `Todo ${Math.floor(Math.random() * 100)}`,
