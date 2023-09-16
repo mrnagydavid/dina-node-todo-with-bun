@@ -1,18 +1,16 @@
 import { z } from 'zod'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '../gateways/prisma-client'
 
 export async function listTodos(params: any) {
   const query = querySchema.parse(params)
 
-  const todos = await prisma.todo.findMany({
+  const todos = await prisma().todo.findMany({
     skip: (query.page - 1) * query.page_size,
     take: query.page_size,
     orderBy: query.order_by,
   })
 
-  const count = await prisma.todo.count()
+  const count = await prisma().todo.count()
 
   const meta = {
     count,
