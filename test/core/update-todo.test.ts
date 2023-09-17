@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, test } from 'bun:test'
+import { Todo } from '@prisma/client'
 import { updateTodo } from '../../src/core/update-todo'
 import { prisma } from '../../src/gateways/prisma-client'
-import { ValidationError } from '../../src/errors'
+import { NotFoundError, ValidationError } from '../../src/errors'
 import { createTodo } from '../factories/todo-factory'
-import { Todo } from '@prisma/client'
 
 describe('updateTodo', () => {
   let originalTodo: Todo
@@ -142,6 +142,15 @@ describe('updateTodo', () => {
 
       const validationError = error as ValidationError
       expect(validationError.errors.done._errors).toEqual(['The "done" field should be defined.'])
+    }
+  })
+
+  test('should throw an error when the todo does not exist', async () => {
+    try {
+      await updateTodo({ id: originalTodo.id + 1, text: 'Test todo', priority: 1 })
+      expect(true).toBe(false)
+    } catch (error) {
+      expect(error).toBeInstanceOf(NotFoundError)
     }
   })
 })

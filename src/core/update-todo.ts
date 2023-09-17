@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { prisma } from '../gateways/prisma-client'
-import { ValidationError } from '../errors'
+import { NotFoundError, ValidationError } from '../errors'
 
 export async function updateTodo(params: any) {
   const validationResult = todoParamsSchema.safeParse(params)
@@ -12,9 +13,16 @@ export async function updateTodo(params: any) {
 
   const todoParams = validationResult.data
 
-  const todo = await prisma().todo.update({ data: todoParams, where: { id: todoParams.id } })
-
-  return todo
+  try {
+    const todo = await prisma().todo.update({ data: todoParams, where: { id: todoParams.id } })
+    return todo
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      throw new NotFoundError()
+    } else {
+      throw error
+    }
+  }
 }
 
 const todoParamsSchema = z.object({
