@@ -78,6 +78,48 @@ describe('PUT /todos', () => {
     originalTodo = await createTodo({ text: 'Foobar', priority: 5, done: false })
   })
 
+  test('should update an existing todo', async () => {
+    supertest(app)
+      .put(`/todos/${originalTodo.id}`)
+      .send({ text: 'Test todo', priority: 3, done: false })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.success).toBe(true)
+        expect(res.body.data.text).toBe('Test todo')
+        expect(res.body.data.priority).toBe(3)
+        expect(res.body.data.done).toBe(false)
+      })
+  })
+
+  test('should return error when the todo does not exist', async () => {
+    supertest(app)
+      .put(`/todos/${originalTodo.id + 1}`)
+      .send({ priority: 3, done: false })
+      .expect(404)
+      .expect((res) => {
+        expect(res.body.success).toBe(false)
+      })
+  })
+
+  test('should return errors', async () => {
+    supertest(app)
+      .put(`/todos/${originalTodo.id}`)
+      .send({ priority: 3, done: false })
+      .expect(400)
+      .expect((res) => {
+        expect(res.body.success).toBe(false)
+        expect(res.body.errors.text._errors).toEqual(['You must specify the todo text.'])
+      })
+  })
+})
+
+describe('DELETE /todos', () => {
+  let originalTodo: Todo
+
+  beforeEach(async () => {
+    originalTodo = await createTodo({ text: 'Foobar', priority: 5, done: false })
+  })
+
   test('should create a new todo', async () => {
     supertest(app)
       .put(`/todos/${originalTodo.id}`)
@@ -91,14 +133,13 @@ describe('PUT /todos', () => {
       })
   })
 
-  test('should return errors', async () => {
+  test('should return error when the todo does not exist', async () => {
     supertest(app)
-      .put(`/todos/${originalTodo.id}`)
+      .put(`/todos/${originalTodo.id + 1}`)
       .send({ priority: 3, done: false })
-      .expect(400)
+      .expect(404)
       .expect((res) => {
         expect(res.body.success).toBe(false)
-        expect(res.body.errors.text._errors).toEqual(['You must specify the todo text.'])
       })
   })
 })

@@ -7,3 +7,10 @@ export class ValidationError extends Error {
     this.errors = errorMap
   }
 }
+
+export class NotFoundError extends Error {
+  constructor() {
+    super('Not Found')
+    this.name = 'NotFoundError'
+  }
+}
