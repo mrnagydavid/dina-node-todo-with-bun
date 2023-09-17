@@ -9,6 +9,10 @@ export function createApp(port = 3000) {
 
   app.use('/', createRouter())
 
+  app.use((_req, res, _next) => {
+    res.status(404).json({ success: false, errors: "Sorry can't find that!" })
+  })
+
   app.use(errorHandler)
 
   app.listen(port, () => {
