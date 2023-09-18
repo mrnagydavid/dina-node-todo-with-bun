@@ -1,24 +1,21 @@
 import { z } from 'zod'
 import { prisma } from '../gateways/prisma-client'
 import { scheduleTodoForDeletion } from './schedule-todo-for-deletion'
-import { ValidationError } from '../errors'
+import { validate } from '../validate'
 
 export async function createTodo(params: any) {
-  const validationResult = todoParamsSchema.safeParse(params)
+  const todoParams = validate(todoParamsSchema, params)
+  const todo = await createTodoItem(todoParams)
 
-  if (!validationResult.success) {
-    const errors = validationResult.error.format()
-    throw new ValidationError(errors)
-  }
-
-  const todoParams = validationResult.data
-
-  const todo = await prisma().todo.create({ data: todoParams })
-
-  if (todoParams.done) {
+  if (todo.done) {
     await scheduleTodoForDeletion(todo.id)
   }
 
+  return todo
+}
+
+async function createTodoItem(todoParams: any) {
+  const todo = await prisma().todo.create({ data: todoParams })
   return todo
 }
 

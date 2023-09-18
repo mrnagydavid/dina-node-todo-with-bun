@@ -1,20 +1,19 @@
 import { z } from 'zod'
-import { prisma } from '../gateways/prisma-client'
-import { NotFoundError, ValidationError } from '../errors'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { prisma } from '../gateways/prisma-client'
+import { NotFoundError } from '../errors'
+import { validate } from '../validate'
 
 export async function deleteTodo(params: any) {
-  const validationResult = todoParamsSchema.safeParse(params)
+  const todoParams = validate(todoParamsSchema, params)
+  const todo = await deleteTodoItem(todoParams)
+  return todo
+}
 
-  if (!validationResult.success) {
-    const errors = validationResult.error.format()
-    throw new ValidationError(errors)
-  }
-
-  const todoParams = validationResult.data
-
+async function deleteTodoItem(todoParams: any) {
   try {
-    await prisma().todo.delete({ where: { id: todoParams.id } })
+    const todo = await prisma().todo.delete({ where: { id: todoParams.id } })
+    return todo
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
       throw new NotFoundError()

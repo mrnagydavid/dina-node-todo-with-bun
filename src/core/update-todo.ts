@@ -2,26 +2,29 @@ import { z } from 'zod'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { Todo } from '@prisma/client'
 import { prisma } from '../gateways/prisma-client'
-import { NotFoundError, ValidationError } from '../errors'
+import { NotFoundError } from '../errors'
 import { scheduleTodoForDeletion } from './schedule-todo-for-deletion'
 import { unscheduleTodoForDeletion } from './unschedule-todo-for-deletion'
+import { validate } from '../validate'
 
 export async function updateTodo(params: any) {
-  const validationResult = todoParamsSchema.safeParse(params)
+  const todoParams = validate(todoParamsSchema, params)
+  const originalTodo = await getOriginalTodo(todoParams)
+  const todo = await updateTodoItem(originalTodo, todoParams)
+  return todo
+}
 
-  if (!validationResult.success) {
-    const errors = validationResult.error.format()
-    throw new ValidationError(errors)
-  }
-
-  const todoParams = validationResult.data
-
+async function getOriginalTodo(todoParams: any) {
   const originalTodo = await prisma().todo.findUnique({ where: { id: todoParams.id } })
 
   if (originalTodo === null) {
     throw new NotFoundError()
   }
 
+  return originalTodo
+}
+
+async function updateTodoItem(originalTodo: Todo, todoParams: any) {
   try {
     await handleAutomaticDeletion(originalTodo, todoParams)
     const todo = prisma().todo.update({ data: todoParams, where: { id: todoParams.id } })

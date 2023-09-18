@@ -1,24 +1,34 @@
 import { z } from 'zod'
 import { prisma } from '../gateways/prisma-client'
+import { validate } from '../validate'
 
 export async function listTodos(params: any) {
-  const query = querySchema.parse(params)
-
-  const todos = await prisma().todo.findMany({
-    skip: (query.page - 1) * query.page_size,
-    take: query.page_size,
-    orderBy: query.order_by,
-  })
-
-  const count = await prisma().todo.count()
+  const queryParams = validate(querySchema, params) as QuerySchema
+  const todos = await listTodoItems(queryParams)
+  const count = await countTodoItems()
 
   const meta = {
     count,
-    page: query.page,
-    page_size: query.page_size,
+    page: queryParams.page,
+    page_size: queryParams.page_size,
   }
 
   return { todos, meta }
+}
+
+async function listTodoItems(queryParams: QuerySchema) {
+  const todos = await prisma().todo.findMany({
+    skip: (queryParams.page - 1) * queryParams.page_size,
+    take: queryParams.page_size,
+    orderBy: queryParams.order_by,
+  })
+
+  return todos
+}
+
+async function countTodoItems() {
+  const count = await prisma().todo.count()
+  return count
 }
 
 const querySchema = z.object({
@@ -36,3 +46,5 @@ const querySchema = z.object({
     .array()
     .default([{ id: 'desc' }]),
 })
+
+type QuerySchema = ReturnType<typeof querySchema.parse>
