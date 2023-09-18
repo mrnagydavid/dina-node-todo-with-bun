@@ -19,3 +19,8 @@ model Todo {
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
 }
+
+model TodoScheduledForDeletion {
+  todo_id          Int       @unique
+  to_be_deleted_at DateTime
+}

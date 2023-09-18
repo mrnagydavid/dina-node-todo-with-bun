@@ -1,7 +1,10 @@
 import { z } from 'zod'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
+import { Todo } from '@prisma/client'
 import { prisma } from '../gateways/prisma-client'
 import { NotFoundError, ValidationError } from '../errors'
+import { scheduleTodoForDeletion } from './schedule-todo-for-deletion'
+import { unscheduleTodoForDeletion } from './unschedule-todo-for-deletion'
 
 export async function updateTodo(params: any) {
   const validationResult = todoParamsSchema.safeParse(params)
@@ -13,15 +16,30 @@ export async function updateTodo(params: any) {
 
   const todoParams = validationResult.data
 
+  const originalTodo = await prisma().todo.findUnique({ where: { id: todoParams.id } })
+
+  if (originalTodo === null) {
+    throw new NotFoundError()
+  }
+
   try {
-    const todo = await prisma().todo.update({ data: todoParams, where: { id: todoParams.id } })
+    await handleAutomaticDeletion(originalTodo, todoParams)
+    const todo = prisma().todo.update({ data: todoParams, where: { id: todoParams.id } })
     return todo
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
       throw new NotFoundError()
     } else {
       throw error
     }
+  }
+}
+
+function handleAutomaticDeletion(originalTodo: Todo, todoParams: any) {
+  if (originalTodo.done == false && todoParams.done == true) {
+    return scheduleTodoForDeletion(todoParams.id)
+  } else if (originalTodo.done == true && todoParams.done == false) {
+    return unscheduleTodoForDeletion(todoParams.id)
   }
 }
 

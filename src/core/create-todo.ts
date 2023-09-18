@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { prisma } from '../gateways/prisma-client'
+import { scheduleTodoForDeletion } from './schedule-todo-for-deletion'
 import { ValidationError } from '../errors'
 
 export async function createTodo(params: any) {
@@ -13,6 +14,10 @@ export async function createTodo(params: any) {
   const todoParams = validationResult.data
 
   const todo = await prisma().todo.create({ data: todoParams })
+
+  if (todoParams.done) {
+    await scheduleTodoForDeletion(todo.id)
+  }
 
   return todo
 }

@@ -147,10 +147,56 @@ describe('updateTodo', () => {
 
   test('should throw an error when the todo does not exist', async () => {
     try {
-      await updateTodo({ id: originalTodo.id + 1, text: 'Test todo', priority: 1 })
+      await updateTodo({ id: originalTodo.id + 1, text: 'Test todo', priority: 1, done: false })
       expect(true).toBe(false)
     } catch (error) {
       expect(error).toBeInstanceOf(NotFoundError)
     }
+  })
+
+  test('should schedule for deletion when the todo is marked as done', async () => {
+    await updateTodo({
+      id: originalTodo.id,
+      text: 'Test todo',
+      priority: 1,
+      done: true,
+    })
+
+    const result = await prisma().todoScheduledForDeletion.findFirst()
+
+    expect(result?.todo_id).toBe(originalTodo.id)
+  })
+
+  test('should not schedule for deletion when the todo is not marked as done', async () => {
+    await updateTodo({
+      id: originalTodo.id,
+      text: 'Test todo',
+      priority: 1,
+      done: false,
+    })
+
+    const result = await prisma().todoScheduledForDeletion.findFirst()
+
+    expect(result).toBe(null)
+  })
+
+  test('should remove from scheduled deletion when the todod is marked as not done again', async () => {
+    await updateTodo({
+      id: originalTodo.id,
+      text: 'Test todo',
+      priority: 1,
+      done: true,
+    })
+
+    await updateTodo({
+      id: originalTodo.id,
+      text: 'Test todo',
+      priority: 1,
+      done: false,
+    })
+
+    const result = await prisma().todoScheduledForDeletion.findFirst()
+
+    expect(result).toBe(null)
   })
 })

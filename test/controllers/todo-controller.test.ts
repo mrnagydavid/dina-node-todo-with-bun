@@ -1,10 +1,10 @@
 import { describe, test, expect, beforeEach } from 'bun:test'
 import supertest from 'supertest'
+import { Todo } from '@prisma/client'
 import { createApp } from '../../src/app'
 import { createTodo } from '../factories/todo-factory'
-import { Todo } from '@prisma/client'
 
-const app = createApp()
+const { app } = createApp()
 
 describe('GET /todos', () => {
   test('should list the todos', async () => {

@@ -16,7 +16,7 @@ export async function deleteTodo(params: any) {
   try {
     await prisma().todo.delete({ where: { id: todoParams.id } })
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
       throw new NotFoundError()
     } else {
       throw error

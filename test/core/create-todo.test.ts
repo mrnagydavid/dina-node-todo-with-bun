@@ -94,4 +94,28 @@ describe('createTodo', () => {
   // test('should throw an error when the text field is missing - variant 3', async () => {
   //   expect(() => createTodo({ priority: 1, done: false })).toThrow()
   // })
+
+  test('should schedule for deletion when the todo is marked as done', async () => {
+    const todo = await createTodo({
+      text: 'Test todo',
+      priority: 1,
+      done: true,
+    })
+
+    const result = await prisma().todoScheduledForDeletion.findFirst()
+
+    expect(result?.todo_id).toBe(todo.id)
+  })
+
+  test('should not schedule for deletion when the todo is not marked as done', async () => {
+    const todo = await createTodo({
+      text: 'Test todo',
+      priority: 1,
+      done: false,
+    })
+
+    const result = await prisma().todoScheduledForDeletion.findFirst()
+
+    expect(result).toBe(null)
+  })
 })

@@ -15,11 +15,11 @@ export function createApp(port = 3000) {
 
   app.use(errorHandler)
 
-  app.listen(port, () => {
+  const server = app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
   })
 
-  return app
+  return { app, server }
 }
 
 function errorHandler(error: Error, req: Request, res: Response, next: NextFunction) {
