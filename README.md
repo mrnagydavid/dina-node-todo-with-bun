@@ -1,6 +1,6 @@
 # Bun and Prisma tryout
 
-This project is a solution for the Digital Native's [`node-todo` assessment](https://github.com/digitalnatives/assessment/tree/main/node-todo).
+This project is a solution for the Digital Natives' [`node-todo` assessment](https://github.com/digitalnatives/assessment/tree/main/node-todo).
 
 Deviations from the assessment task:
 
@@ -9,12 +9,12 @@ Deviations from the assessment task:
 
 ## Pre-requisites
 
-`bun`
+[`bun`](https://bun.sh/)
 
-Theoretically the project should run with node too, but I haven't tried it.
-I used `bun:test` for testing, so `bun` is a must for running the tests.
+Theoretically the project should run with `node` too, but I haven't tried it.
+I used `bun:test`for testing, so`bun` is a must for running the tests.
 
-`node` and `npm`
+[`node` and `npm`](https://nodejs.org)
 
 Even though `bun` should be a drop-in replacement for `node`,
 the Prisma migration scripts threw an error when run with `bunx` instead of `npx`.
@@ -31,7 +31,7 @@ bun install
 make dev
 ```
 
-Since the migrations require `npx prisma migrate dev`, I create a Makefile script to help with that.
+Since the migrations require `npx prisma migrate dev`, I created a Makefile script to help with that.
 The Makefile script also sets the `DATABASE_URL` to `"file:./dev.db"`.
 
 ## Running the tests
