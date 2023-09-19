@@ -4,7 +4,7 @@ import { Todo } from '@prisma/client'
 import { createApp } from '../../src/app'
 import { createTodo } from '../factories/todo-factory'
 
-const { app } = createApp()
+const app = createApp()
 
 describe('GET /todos', () => {
   test('should list the todos', async () => {

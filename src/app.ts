@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express'
 import { createRouter } from './router'
 import { NotFoundError, ValidationError } from './errors'
 
-export function createApp(port = 3000) {
+export function createApp() {
   const app = express()
 
   app.use(express.json())
@@ -15,11 +15,7 @@ export function createApp(port = 3000) {
 
   app.use(errorHandler)
 
-  const server = app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-  })
-
-  return { app, server }
+  return app
 }
 
 function errorHandler(error: Error, req: Request, res: Response, next: NextFunction) {
