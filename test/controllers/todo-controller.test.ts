@@ -25,7 +25,9 @@ describe('GET /todos', () => {
           },
         },
       })
-      .end()
+      .end(function (err, _res) {
+        if (err) throw err
+      })
   })
 
   test('should pass on the query params', async () => {
@@ -42,6 +44,9 @@ describe('GET /todos', () => {
         const texts = res.body.data.todos.map((todo: any) => todo.text)
         expect(texts).toEqual(['A', 'B', 'C'])
       })
+      .end(function (err, _res) {
+        if (err) throw err
+      })
   })
 })
 
@@ -57,6 +62,9 @@ describe('POST /todos', () => {
         expect(res.body.data.priority).toBe(3)
         expect(res.body.data.done).toBe(false)
       })
+      .end(function (err, _res) {
+        if (err) throw err
+      })
   })
 
   test('should return errors', async () => {
@@ -67,6 +75,9 @@ describe('POST /todos', () => {
       .expect((res) => {
         expect(res.body.success).toBe(false)
         expect(res.body.errors.text._errors).toEqual(['You must specify the todo text.'])
+      })
+      .end(function (err, _res) {
+        if (err) throw err
       })
   })
 })
@@ -89,6 +100,9 @@ describe('PUT /todos', () => {
         expect(res.body.data.priority).toBe(3)
         expect(res.body.data.done).toBe(false)
       })
+      .end(function (err, _res) {
+        if (err) throw err
+      })
   })
 
   test('should return error when the todo does not exist', async () => {
@@ -98,6 +112,9 @@ describe('PUT /todos', () => {
       .expect(404)
       .expect((res) => {
         expect(res.body.success).toBe(false)
+      })
+      .end(function (err, _res) {
+        if (err) throw err
       })
   })
 
@@ -109,6 +126,9 @@ describe('PUT /todos', () => {
       .expect((res) => {
         expect(res.body.success).toBe(false)
         expect(res.body.errors.text._errors).toEqual(['You must specify the todo text.'])
+      })
+      .end(function (err, _res) {
+        if (err) throw err
       })
   })
 })
@@ -131,6 +151,9 @@ describe('DELETE /todos', () => {
         expect(res.body.data.priority).toBe(3)
         expect(res.body.data.done).toBe(false)
       })
+      .end(function (err, _res) {
+        if (err) throw err
+      })
   })
 
   test('should return error when the todo does not exist', async () => {
@@ -140,6 +163,9 @@ describe('DELETE /todos', () => {
       .expect(404)
       .expect((res) => {
         expect(res.body.success).toBe(false)
+      })
+      .end(function (err, _res) {
+        if (err) throw err
       })
   })
 })
